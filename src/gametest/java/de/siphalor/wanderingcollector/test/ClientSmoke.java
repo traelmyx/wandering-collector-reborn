@@ -1,0 +1,138 @@
+package de.siphalor.wanderingcollector.test;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.Screenshot;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.Difficulty;
+import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.LevelSettings;
+import net.minecraft.world.level.WorldDataConfiguration;
+import net.minecraft.world.level.levelgen.WorldOptions;
+import net.minecraft.world.level.levelgen.presets.WorldPresets;
+
+import net.minecraft.client.gui.screens.inventory.MerchantScreen;
+import net.minecraft.world.entity.npc.WanderingTrader;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+
+import java.nio.file.Files;
+
+// Run with -Dsmoketest=true: creates a flat world, takes a screenshot and quits. Exit code 1 on failure.
+public final class ClientSmoke {
+
+    public static final boolean ENABLED = Boolean.getBoolean("smoketest");
+    private static final long TIMEOUT_MS = 5 * 60 * 1000;
+
+    private static int stage;
+    private static int ticks;
+
+    private ClientSmoke() {
+    }
+
+    public static boolean start() {
+        if (!ENABLED) {
+            return false;
+        }
+        Thread watchdog = new Thread(() -> {
+            try {
+                Thread.sleep(TIMEOUT_MS);
+                fail("timed out");
+            } catch (InterruptedException ignored) {
+            }
+        }, "smoketest-watchdog");
+        watchdog.setDaemon(true);
+        watchdog.start();
+        return true;
+    }
+
+    public static void tick(Minecraft mc) {
+        try {
+            switch (stage) {
+                case 0 -> {
+                    Screen screen = mc.screen;
+                    if (screen != null && mc.getOverlay() == null && ++ticks >= 20) {
+                        if (screen.getClass().getSimpleName().equals("LoadingErrorScreen")) {
+                            fail("mod loading errors");
+                        }
+                        ticks = 0;
+                        mc.options.tutorialStep = net.minecraft.client.tutorial.TutorialSteps.NONE;
+                        createWorld(mc);
+                        stage = 1;
+                    }
+                }
+                case 1 -> {
+                    if (mc.level != null && mc.player != null && mc.screen == null) {
+                        stage = 2;
+                    }
+                }
+                case 2 -> {
+                    ticks++;
+                    if (ticks == 40) {
+                        setup(mc);
+                    }
+                    if (ticks == 80) {
+                        // right-click the trader like a player would
+                        var trader = mc.level.getEntitiesOfClass(WanderingTrader.class, mc.player.getBoundingBox().inflate(6)).stream().findFirst().orElse(null);
+                        if (trader == null) fail("no wandering trader near the player");
+                        mc.gameMode.interact(mc.player, trader, net.minecraft.world.InteractionHand.MAIN_HAND);
+                    }
+                    if (ticks == 120) {
+                        Screenshot.grab(mc.gameDirectory, "buy-back.png", mc.getMainRenderTarget(), msg -> {});
+                    }
+                    if (ticks >= 130) {
+                        if (!(mc.screen instanceof MerchantScreen screen)) {
+                            fail("trade screen not open: " + mc.screen);
+                            return;
+                        }
+                        boolean back = screen.getMenu().getOffers().stream().anyMatch(o -> o.getResult().is(Items.ELYTRA));
+                        if (!back) fail("the trader does not offer the lost elytra back");
+                        mc.setScreen(null);
+                        Files.writeString(mc.gameDirectory.toPath().resolve("smoke-ok"), "ok\n");
+                        stage = 3;
+                        mc.stop();
+                    }
+                }
+                default -> {
+                }
+            }
+        } catch (Throwable t) {
+            t.printStackTrace();
+            fail(t.toString());
+        }
+    }
+
+    private static void createWorld(Minecraft mc) {
+        LevelSettings settings = new LevelSettings("smoke", GameType.SURVIVAL, false, Difficulty.PEACEFUL, true, new GameRules(), WorldDataConfiguration.DEFAULT);
+        mc.createWorldOpenFlows().createFreshLevel("smoke", settings, new WorldOptions(0L, false, false),
+            registries -> registries.registryOrThrow(Registries.WORLD_PRESET).getHolderOrThrow(WorldPresets.FLAT).value().createWorldDimensions(),
+            mc.screen);
+    }
+
+    // the player "lost" an elytra and a diamond pickaxe earlier; a wandering trader stands in front of them
+    private static void setup(Minecraft mc) {
+        var server = mc.getSingleplayerServer();
+        server.execute(() -> {
+            var player = server.getPlayerList().getPlayers().get(0);
+            var level = player.serverLevel();
+            var storage = ((de.siphalor.wanderingcollector.util.IServerPlayerEntity) player).wandering_collector$getLostItemStorage();
+            storage.add(new ItemStack(Items.ELYTRA));
+            var pick = new ItemStack(Items.DIAMOND_PICKAXE);
+            pick.set(net.minecraft.core.component.DataComponents.CUSTOM_NAME, net.minecraft.network.chat.Component.literal("Old Faithful"));
+            storage.add(pick);
+            var look = player.getLookAngle();
+            WanderingTrader trader = net.minecraft.world.entity.EntityType.WANDERING_TRADER.create(level);
+            trader.moveTo(player.getX() + look.x * 2, player.getY(), player.getZ() + look.z * 2, player.getYRot() + 180, 0);
+            trader.setNoAi(true);
+            level.addFreshEntity(trader);
+        });
+    }
+
+    public static void fail(String why) {
+        System.err.println("Smoke test failed: " + why);
+        System.out.println("[clientsmoke] FAILED: " + why);
+        System.err.flush();
+        Runtime.getRuntime().halt(1);
+    }
+}

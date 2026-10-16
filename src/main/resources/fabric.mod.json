@@ -1,0 +1,25 @@
+{
+	"schemaVersion": 1,
+	"id": "${id}",
+	"version": "${version}",
+	"name": "${name}",
+	"description": "Items you lose come back: Wandering Traders offer to sell you stacks that despawned or burnt after you died. Based on Wandering Collector by Siphalor.",
+	"authors": ["traelmyx"],
+	"contributors": ["Siphalor (original mod)"],
+	"contact": {
+		"sources": "https://github.com/traelmyx/wandering-collector-reborn",
+		"issues": "https://github.com/traelmyx/wandering-collector-reborn/issues"
+	},
+	"license": "Apache-2.0",
+	"icon": "assets/wandering_collector/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": ["de.siphalor.wanderingcollector.fabric.WanderingCollectorFabric"]
+	},
+	"mixins": ["wandering_collector.mixins.json"],
+	"depends": {
+		"fabricloader": ">=0.16.0",
+		"minecraft": "${mc_dep}",
+		"java": ">=${java}"
+	}
+}

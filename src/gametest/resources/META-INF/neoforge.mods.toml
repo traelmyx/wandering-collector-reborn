@@ -1,0 +1,15 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+license = "Apache-2.0"
+
+[[mods]]
+modId = "${id}_gametest"
+version = "${version}"
+displayName = "Wandering Collector GameTests"
+
+[[dependencies.${id}_gametest]]
+modId = "${id}"
+type = "required"
+versionRange = "*"
+ordering = "AFTER"
+side = "BOTH"

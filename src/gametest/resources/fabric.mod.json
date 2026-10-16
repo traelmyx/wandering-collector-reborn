@@ -1,0 +1,14 @@
+{
+	"schemaVersion": 1,
+	"id": "${id}_gametest",
+	"version": "${version}",
+	"name": "Wandering Collector GameTests",
+	"environment": "*",
+	"entrypoints": {
+		"fabric-gametest": ["de.siphalor.wanderingcollector.test.fabric.FabricGameTests"],
+		"client": ["de.siphalor.wanderingcollector.test.fabric.FabricClientSmoke"]
+	},
+	"depends": {
+		"${id}": "*"
+	}
+}

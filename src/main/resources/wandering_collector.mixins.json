@@ -1,0 +1,18 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "de.siphalor.wanderingcollector.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "MixinEntity",
+    "MixinItemEntity",
+    "MixinMerchantInventory",
+    "MixinMerchantScreenHandler",
+    "MixinPlayer",
+    "MixinServerPlayerEntity",
+    "MixinWanderingTraderEntity"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
