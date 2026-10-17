@@ -5,7 +5,11 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.world.level.GameType;
 
 import net.minecraft.client.gui.screens.inventory.MerchantScreen;
+//? if >=1.21.11 {
+/*import net.minecraft.world.entity.npc.wanderingtrader.WanderingTrader;
+*///?} else {
 import net.minecraft.world.entity.npc.WanderingTrader;
+//?}
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
@@ -65,10 +69,15 @@ public final class ClientSmoke {
                         setup(mc);
                     }
                     if (ticks == 80) {
-                        // right-click the trader like a player would
-                        var trader = mc.level.getEntitiesOfClass(WanderingTrader.class, mc.player.getBoundingBox().inflate(6)).stream().findFirst().orElse(null);
-                        if (trader == null) fail("no wandering trader near the player");
-                        mc.gameMode.interact(mc.player, trader, net.minecraft.world.InteractionHand.MAIN_HAND);
+                        // open the trade screen as if the player had right-clicked the trader
+                        var server = mc.getSingleplayerServer();
+                        server.execute(() -> {
+                            var player = server.getPlayerList().getPlayers().get(0);
+                            var trader = player.level().getEntitiesOfClass(WanderingTrader.class, player.getBoundingBox().inflate(6)).stream().findFirst().orElse(null);
+                            if (trader == null) fail("no wandering trader near the player");
+                            trader.setTradingPlayer(player);
+                            trader.openTradingScreen(player, trader.getDisplayName(), 1);
+                        });
                     }
                     if (ticks == 120) {
                         SmokeCompat.screenshot(mc, "buy-back.png");
@@ -100,17 +109,14 @@ public final class ClientSmoke {
         var server = mc.getSingleplayerServer();
         server.execute(() -> {
             var player = server.getPlayerList().getPlayers().get(0);
-            var level = player.serverLevel();
             var storage = ((de.siphalor.wanderingcollector.util.IServerPlayerEntity) player).wandering_collector$getLostItemStorage();
             storage.add(new ItemStack(Items.ELYTRA));
             var pick = new ItemStack(Items.DIAMOND_PICKAXE);
             pick.set(net.minecraft.core.component.DataComponents.CUSTOM_NAME, net.minecraft.network.chat.Component.literal("Old Faithful"));
             storage.add(pick);
             var look = player.getLookAngle();
-            WanderingTrader trader = net.minecraft.world.entity.EntityType.WANDERING_TRADER.create(level);
-            trader.moveTo(player.getX() + look.x * 2, player.getY(), player.getZ() + look.z * 2, player.getYRot() + 180, 0);
-            trader.setNoAi(true);
-            level.addFreshEntity(trader);
+            server.getCommands().performPrefixedCommand(server.createCommandSourceStack().withSuppressedOutput(), String.format(java.util.Locale.ROOT,
+                "summon minecraft:wandering_trader %.2f %.2f %.2f {NoAI:1b,Tags:[\"smoke\"]}", player.getX() + look.x * 2, player.getY(), player.getZ() + look.z * 2));
         });
     }
 
