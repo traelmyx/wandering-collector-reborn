@@ -36,7 +36,7 @@ public final class TestCompat {
 
     /** Drops a stack the way the game does: on death (no thrower name) or deliberately (with it). */
     public static ItemEntity drop(ServerPlayer player, ItemStack stack, boolean onDeath) {
-        //? if >=1.21.11 {
+        //? if >=26 {
         /*ItemEntity item = player.createItemStackToDrop(stack, onDeath, !onDeath);
         if (item != null) player.level().addFreshEntity(item);
         return item;
