@@ -21,7 +21,11 @@ package de.siphalor.wanderingcollector;
 import de.siphalor.wanderingcollector.util.IItemEntity;
 import de.siphalor.wanderingcollector.util.IServerPlayerEntity;
 import net.minecraft.core.registries.Registries;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
@@ -38,7 +42,11 @@ public class WanderingCollector {
 	public static final String LOST_STACKS_KEY = MOD_ID + ":" + "lost_stacks";
 	public static final String PLAYER_SPECIFIC_TRADES = MOD_ID + ":" + "player_specific_trades";
 	/** Items that are never remembered (emeralds by default, so the trader can't sell you your own currency). */
+	//? if >=1.21.11 {
+	/*public static final TagKey<Item> DENY_TAG = TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(MOD_ID, "deny"));
+	*///?} else {
 	public static final TagKey<Item> DENY_TAG = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(MOD_ID, "deny"));
+	//?}
 
 	/** Called when an item entity is destroyed for good: despawned, burnt, blown up or fallen out of the world. */
 	public static void addStackToThrower(ItemEntity item) {

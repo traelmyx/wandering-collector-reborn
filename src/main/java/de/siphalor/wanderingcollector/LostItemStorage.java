@@ -33,6 +33,18 @@ public class LostItemStorage {
 	private static final Random RANDOM = new Random();
 	private final List<ItemStack> stacks = new ArrayList<>();
 
+	//? if >=1.21.6 {
+	/*public void read(net.minecraft.world.level.storage.ValueInput input) {
+		stacks.clear();
+		input.read(WanderingCollector.LOST_STACKS_KEY, ItemStack.CODEC.listOf()).ifPresent(stacks::addAll);
+	}
+
+	public void write(net.minecraft.world.level.storage.ValueOutput output) {
+		if (!stacks.isEmpty()) {
+			output.store(WanderingCollector.LOST_STACKS_KEY, ItemStack.CODEC.listOf(), List.copyOf(stacks));
+		}
+	}
+	*///?} else {
 	public void read(CompoundTag parentNbt, HolderLookup.Provider registries) {
 		stacks.clear();
 		if (parentNbt.contains(WanderingCollector.LOST_STACKS_KEY, Tag.TAG_COMPOUND)) {
@@ -56,6 +68,7 @@ public class LostItemStorage {
 		ownNbt.put("Stacks", listNbt);
 		parentNbt.put(WanderingCollector.LOST_STACKS_KEY, ownNbt);
 	}
+	//?}
 
 	public boolean isEmpty() {
 		return stacks.isEmpty();

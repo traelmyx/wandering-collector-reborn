@@ -38,6 +38,17 @@ public abstract class MixinServerPlayerEntity implements IServerPlayerEntity {
 		lostItemStorage = ((IServerPlayerEntity) other).wandering_collector$getLostItemStorage();
 	}
 
+	//? if >=1.21.6 {
+	/*@Inject(method = "readAdditionalSaveData", at = @At("RETURN"))
+	public void readCustomDataFromTagInject(net.minecraft.world.level.storage.ValueInput input, CallbackInfo callbackInfo) {
+		lostItemStorage.read(input);
+	}
+
+	@Inject(method = "addAdditionalSaveData", at = @At("RETURN"))
+	public void writeCustomDataToTagInject(net.minecraft.world.level.storage.ValueOutput output, CallbackInfo callbackInfo) {
+		lostItemStorage.write(output);
+	}
+	*///?} else {
 	@Inject(method = "readAdditionalSaveData", at = @At("RETURN"))
 	public void readCustomDataFromTagInject(CompoundTag tag, CallbackInfo callbackInfo) {
 		lostItemStorage.read(tag, ((ServerPlayer) (Object) this).registryAccess());
@@ -47,6 +58,7 @@ public abstract class MixinServerPlayerEntity implements IServerPlayerEntity {
 	public void writeCustomDataToTagInject(CompoundTag tag, CallbackInfo callbackInfo) {
 		lostItemStorage.write(tag, ((ServerPlayer) (Object) this).registryAccess());
 	}
+	//?}
 
 	@Override
 	public LostItemStorage wandering_collector$getLostItemStorage() {

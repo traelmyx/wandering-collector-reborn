@@ -56,6 +56,19 @@ public abstract class MixinItemEntity extends Entity implements IItemEntity {
 		this.formerOwner = playerUuid;
 	}
 
+	//? if >=1.21.6 {
+	/*@Inject(method = "readAdditionalSaveData", at = @At("RETURN"))
+	public void readCustomDataFromTag(net.minecraft.world.level.storage.ValueInput input, CallbackInfo ci) {
+		formerOwner = input.read(formerOwnerKey, net.minecraft.core.UUIDUtil.CODEC).orElse(null);
+	}
+
+	@Inject(method = "addAdditionalSaveData", at = @At("RETURN"))
+	public void writeCustomDataFromTag(net.minecraft.world.level.storage.ValueOutput output, CallbackInfo ci) {
+		if (formerOwner != null) {
+			output.store(formerOwnerKey, net.minecraft.core.UUIDUtil.CODEC, formerOwner);
+		}
+	}
+	*///?} else {
 	@Inject(method = "readAdditionalSaveData", at = @At("RETURN"))
 	public void readCustomDataFromTag(CompoundTag tag, CallbackInfo ci) {
 		if (tag.hasUUID(formerOwnerKey)) {
@@ -69,6 +82,7 @@ public abstract class MixinItemEntity extends Entity implements IItemEntity {
 			tag.putUUID(formerOwnerKey, formerOwner);
 		}
 	}
+	//?}
 
 	// The only discard of a non-empty item inside tick() is the despawn.
 	@Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/item/ItemEntity;discard()V"))
@@ -76,8 +90,13 @@ public abstract class MixinItemEntity extends Entity implements IItemEntity {
 		WanderingCollector.addStackToThrower((ItemEntity) (Object) this);
 	}
 
+	//? if >=1.21.2 {
+	/*@Inject(method = "hurtServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/item/ItemEntity;discard()V"))
+	public void onDeathInject(net.minecraft.server.level.ServerLevel level, DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+	*///?} else {
 	@Inject(method = "hurt", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/item/ItemEntity;discard()V"))
 	public void onDeathInject(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+	//?}
 		WanderingCollector.addStackToThrower((ItemEntity) (Object) this);
 	}
 }

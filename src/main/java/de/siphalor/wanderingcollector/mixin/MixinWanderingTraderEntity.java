@@ -30,8 +30,13 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.EntityType;
+//? if >=1.21.11 {
+/*import net.minecraft.world.entity.npc.villager.AbstractVillager;
+import net.minecraft.world.entity.npc.wanderingtrader.WanderingTrader;
+*///?} else {
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.npc.WanderingTrader;
+//?}
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MerchantMenu;
 import net.minecraft.world.item.ItemStack;
@@ -49,6 +54,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
 import java.util.UUID;
@@ -100,6 +106,31 @@ public abstract class MixinWanderingTraderEntity extends AbstractVillager implem
 		}
 	}
 
+	//? if >=1.21.6 {
+	/*@org.spongepowered.asm.mixin.Unique
+	private static final com.mojang.serialization.Codec<Map<String, List<MerchantOffer>>> TRADES_CODEC =
+		com.mojang.serialization.Codec.unboundedMap(com.mojang.serialization.Codec.STRING, MerchantOffer.CODEC.listOf());
+
+	@Inject(method = "readAdditionalSaveData", at = @At("RETURN"))
+	public void readCustomDataFromTagInject(net.minecraft.world.level.storage.ValueInput input, CallbackInfo callbackInfo) {
+		playerSpecificTrades.clear();
+		input.read(WanderingCollector.PLAYER_SPECIFIC_TRADES, TRADES_CODEC).ifPresent(map -> map.forEach((key, offers) -> {
+			try {
+				playerSpecificTrades.put(UUID.fromString(key), new ArrayList<>(offers));
+			} catch (IllegalArgumentException ignored) {
+			}
+		}));
+	}
+
+	@Inject(method = "addAdditionalSaveData", at = @At("RETURN"))
+	public void writeCustomDataToTag(net.minecraft.world.level.storage.ValueOutput output, CallbackInfo callbackInfo) {
+		Map<String, List<MerchantOffer>> map = new HashMap<>();
+		playerSpecificTrades.forEach((uuid, offers) -> {
+			if (!offers.isEmpty()) map.put(uuid.toString(), List.copyOf(offers));
+		});
+		output.store(WanderingCollector.PLAYER_SPECIFIC_TRADES, TRADES_CODEC, map);
+	}
+	*///?} else {
 	@Inject(method = "readAdditionalSaveData", at = @At("RETURN"))
 	public void readCustomDataFromTagInject(CompoundTag tag, CallbackInfo callbackInfo) {
 		playerSpecificTrades.clear();
@@ -136,4 +167,5 @@ public abstract class MixinWanderingTraderEntity extends AbstractVillager implem
 		}
 		tag.put(WanderingCollector.PLAYER_SPECIFIC_TRADES, compound);
 	}
+	//?}
 }

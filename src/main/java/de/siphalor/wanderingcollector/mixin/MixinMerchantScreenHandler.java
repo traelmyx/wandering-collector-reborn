@@ -45,7 +45,7 @@ public abstract class MixinMerchantScreenHandler {
 
 	@Inject(method = "getOffers", at = @At("HEAD"), cancellable = true)
 	public void getOffersInject(CallbackInfoReturnable<MerchantOffers> cir) {
-		if (trader instanceof IWanderingTraderEntity wanderer && trader.getTradingPlayer() != null && !trader.getTradingPlayer().level().isClientSide) {
+		if (trader instanceof IWanderingTraderEntity wanderer && trader.getTradingPlayer() != null && !trader.getTradingPlayer().level().isClientSide()) {
 			cir.setReturnValue(wanderer.wandering_collector$getOffers(trader.getTradingPlayer()));
 		}
 	}

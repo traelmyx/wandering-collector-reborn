@@ -28,6 +28,18 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+//? if >=1.21.11 {
+/*@Mixin(net.minecraft.world.entity.LivingEntity.class)
+public class MixinPlayer {
+	// Items dropped without the player's name on them (death drops, items spilling out of a closed screen) remember who lost them.
+	@Inject(method = "createItemStackToDrop", at = @At("RETURN"))
+	public void onItemDropped(ItemStack itemStack, boolean dropAround, boolean includeThrowerName, CallbackInfoReturnable<ItemEntity> cir) {
+		if (!includeThrowerName && cir.getReturnValue() instanceof IItemEntity item && (Object) this instanceof ServerPlayer player) {
+			item.wanderingCollector$setFormerOwner(player.getUUID());
+		}
+	}
+}
+*///?} else {
 @Mixin(Player.class)
 public class MixinPlayer {
 	// Items dropped without the player's name on them (death drops, items spilling out of a closed screen) remember who lost them.
@@ -38,3 +50,4 @@ public class MixinPlayer {
 		}
 	}
 }
+//?}

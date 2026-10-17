@@ -41,7 +41,7 @@ public class MixinMerchantInventory implements IMerchantInventory {
 
 	@Redirect(method = "updateSellItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/trading/Merchant;getOffers()Lnet/minecraft/world/item/trading/MerchantOffers;"))
 	public MerchantOffers getOffersRedirect(Merchant merchant) {
-		if (merchant instanceof IWanderingTraderEntity trader && player != null && !player.level().isClientSide) {
+		if (merchant instanceof IWanderingTraderEntity trader && player != null && !player.level().isClientSide()) {
 			return trader.wandering_collector$getOffers(player);
 		}
 		return merchant.getOffers();

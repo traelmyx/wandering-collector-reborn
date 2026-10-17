@@ -46,22 +46,26 @@ public final class SmokeCompat {
     }
 
     public static void createFlatWorld(Minecraft mc, GameType type) {
+        createWorld(mc, type, WorldPresets.FLAT, 0L, false);
+    }
+
+    public static void createWorld(Minecraft mc, GameType type, net.minecraft.resources.ResourceKey<net.minecraft.world.level.levelgen.presets.WorldPreset> preset, long seed, boolean structures) {
         //? if >=26 {
         /*LevelSettings settings = new LevelSettings("smoke", type,
             new LevelSettings.DifficultySettings(Difficulty.PEACEFUL, false, false), true, WorldDataConfiguration.DEFAULT);
-        mc.createWorldOpenFlows().createFreshLevel("smoke", settings, new WorldOptions(0L, false, false),
-            registries -> registries.lookupOrThrow(Registries.WORLD_PRESET).getOrThrow(WorldPresets.FLAT).value().createWorldDimensions(),
+        mc.createWorldOpenFlows().createFreshLevel("smoke", settings, new WorldOptions(seed, structures, false),
+            registries -> registries.lookupOrThrow(Registries.WORLD_PRESET).getOrThrow(preset).value().createWorldDimensions(),
             mc.gui.screen());
         *///?} else if >=1.21.11 {
         /*LevelSettings settings = new LevelSettings("smoke", type, false, Difficulty.PEACEFUL, true,
             new GameRules(WorldDataConfiguration.DEFAULT.enabledFeatures()), WorldDataConfiguration.DEFAULT);
-        mc.createWorldOpenFlows().createFreshLevel("smoke", settings, new WorldOptions(0L, false, false),
-            registries -> registries.lookupOrThrow(Registries.WORLD_PRESET).getOrThrow(WorldPresets.FLAT).value().createWorldDimensions(),
+        mc.createWorldOpenFlows().createFreshLevel("smoke", settings, new WorldOptions(seed, structures, false),
+            registries -> registries.lookupOrThrow(Registries.WORLD_PRESET).getOrThrow(preset).value().createWorldDimensions(),
             mc.screen);
         *///?} else {
         LevelSettings settings = new LevelSettings("smoke", type, false, Difficulty.PEACEFUL, true, new GameRules(), WorldDataConfiguration.DEFAULT);
-        mc.createWorldOpenFlows().createFreshLevel("smoke", settings, new WorldOptions(0L, false, false),
-            registries -> registries.registryOrThrow(Registries.WORLD_PRESET).getHolderOrThrow(WorldPresets.FLAT).value().createWorldDimensions(),
+        mc.createWorldOpenFlows().createFreshLevel("smoke", settings, new WorldOptions(seed, structures, false),
+            registries -> registries.registryOrThrow(Registries.WORLD_PRESET).getHolderOrThrow(preset).value().createWorldDimensions(),
             mc.screen);
         //?}
     }
